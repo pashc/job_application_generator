@@ -47,14 +47,15 @@ def _get_json_from(cur_dir):
 
 
 def _process_dirs(dirs, personal_json, template):
+    print('processing {} companies...'.format(len(dirs)))
     for cur_dir in dirs:
         cur_template = template
-
         cur_template = _format_personal_data(personal_json, cur_template)
         cur_template = _format_address(cur_dir, cur_template)
         cur_template = _format_application_text(cur_dir, cur_template)
 
         _write_template(cur_dir, cur_template)
+    print('finished.')
 
 
 def _read_from_specific_file(cur_dir, file_name):
