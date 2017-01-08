@@ -61,7 +61,7 @@ def _format_personal_data(personal_json, template):
 
 
 def _format_signature(template):
-    signature_png = _get_specific_file(Path(BIN_DIR), 'signature.png')
+    signature_png = _get_specific_file(Path(BIN_DIR), 'png')
     return template.replace('{SIGNATURE}', str(signature_png))
 
 
