@@ -1,4 +1,8 @@
 import json
+import os
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 APPLICATIONS_DIR = './applications'
@@ -10,6 +14,26 @@ def run():
     template = _read_from_specific_file(APPLICATIONS_DIR, 'tex')
 
     _process_dirs(dirs, personal_json, template)
+
+
+def _cleanup(output_dir):
+    output_path = Path(output_dir)
+    files_to_remove = ['.aux', '.log', '.out']
+    for file in output_path.iterdir():
+        if str(file)[-4:] in files_to_remove:
+            os.remove(str(file))
+
+
+def _create_pdf(app_tex):
+    pdflatex = shutil.which('pdflatex')
+    if not pdflatex:
+        print('pdflatex is not installed')
+        sys.exit('Abort')
+
+    output_dir = str(app_tex.parents[0].absolute())
+    subprocess.run([pdflatex, '-output-dir=' + output_dir, '-jobname=job_application', str(app_tex.absolute())],
+                   stdout=subprocess.DEVNULL)
+    _cleanup(output_dir)
 
 
 def _format_address(cur_dir, template):
@@ -49,13 +73,20 @@ def _get_json_from(cur_dir):
 def _process_dirs(dirs, personal_json, template):
     print('processing {} companies...'.format(len(dirs)))
     for cur_dir in dirs:
-        cur_template = template
-        cur_template = _format_personal_data(personal_json, cur_template)
-        cur_template = _format_address(cur_dir, cur_template)
-        cur_template = _format_application_text(cur_dir, cur_template)
+        cur_template = _format_template(cur_dir, personal_json, template)
 
-        _write_template(cur_dir, cur_template)
-    print('finished.')
+        app_tex = cur_dir / 'app.tex'
+        _write_template(app_tex, cur_template)
+        _create_pdf(app_tex)
+
+    print('finished')
+
+
+def _format_template(cur_dir, personal_json, template):
+    cur_template = _format_personal_data(personal_json, template)
+    cur_template = _format_address(cur_dir, cur_template)
+    cur_template = _format_application_text(cur_dir, cur_template)
+    return cur_template
 
 
 def _read_from_specific_file(cur_dir, file_name):
@@ -65,8 +96,7 @@ def _read_from_specific_file(cur_dir, file_name):
         return file.read()
 
 
-def _write_template(cur_dir, cur_template):
-    app_tex = cur_dir / 'application.tex'
+def _write_template(app_tex, cur_template):
     if not app_tex.exists():
         app_tex.touch()
     with app_tex.open('w') as file:
