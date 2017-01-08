@@ -6,11 +6,12 @@ import sys
 from pathlib import Path
 
 APPLICATIONS_DIR = './applications'
+BIN_DIR = './bin'
 
 
 def run():
     dirs = _get_company_dirs()
-    personal_json = _get_json_from(APPLICATIONS_DIR)
+    personal_json = _load_json_from(APPLICATIONS_DIR)
     template = _read_from_specific_file(APPLICATIONS_DIR, 'tex')
 
     _process_dirs(dirs, personal_json, template)
@@ -35,7 +36,7 @@ def _create_pdf(app_tex, output_dir):
 
 
 def _format_address(cur_dir, template):
-    address_json = _get_json_from(cur_dir)
+    address_json = _load_json_from(cur_dir)
     return template \
         .replace('{{COMPANY_NAME}}', address_json['company']) \
         .replace('{{COMPANY_STREET}}', address_json['street']) \
@@ -59,12 +60,29 @@ def _format_personal_data(personal_json, template):
         .replace('{{E_MAIL}}', personal_json['e_mail'])
 
 
+def _format_signature(template):
+    signature_png = _get_specific_file(Path(BIN_DIR), 'signature.png')
+    return template.replace('{SIGNATURE}', str(signature_png))
+
+
+def _format_template(cur_dir, personal_json, template):
+    cur_template = _format_personal_data(personal_json, template)
+    cur_template = _format_address(cur_dir, cur_template)
+    cur_template = _format_application_text(cur_dir, cur_template)
+    cur_template = _format_signature(cur_template)
+    return cur_template
+
+
 def _get_company_dirs():
     app_dir = Path(APPLICATIONS_DIR)
     return [x for x in app_dir.iterdir() if x.is_dir()]
 
 
-def _get_json_from(cur_dir):
+def _get_specific_file(path, file_name):
+    return [x for x in path.iterdir() if x.name.endswith(file_name)][0]
+
+
+def _load_json_from(cur_dir):
     return json.loads(_read_from_specific_file(cur_dir, 'json'))
 
 
@@ -80,16 +98,9 @@ def _process_dirs(dirs, personal_json, template):
     print('finished')
 
 
-def _format_template(cur_dir, personal_json, template):
-    cur_template = _format_personal_data(personal_json, template)
-    cur_template = _format_address(cur_dir, cur_template)
-    cur_template = _format_application_text(cur_dir, cur_template)
-    return cur_template
-
-
 def _read_from_specific_file(cur_dir, file_name):
     path = Path(cur_dir)
-    specific_file = [x for x in path.iterdir() if x.name.endswith(file_name)][0]
+    specific_file = _get_specific_file(path, file_name)
     with specific_file.open() as file:
         return file.read()
 
