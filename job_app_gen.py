@@ -59,10 +59,8 @@ def _format_certificates(template):
 
 def _format_cv(template):
     cv_pdf = _get_and_check_specific_file(Path(CV_DIR), 'cv.pdf')
-    if cv_pdf is not None:
-        return template.replace('{{CV}}', '\\includepdf[]{{{}}}'.format(str(cv_pdf)))
-    else:
-        return template.replace('{{CV}}', '')
+    cv_format = ['\\includepdf[]{{{}}}'.format(str(cv_pdf)) if cv_pdf else '']
+    return template.replace('{{CV}}', ''.join(cv_format))
 
 
 def _format_personal_data(personal_json, template):
