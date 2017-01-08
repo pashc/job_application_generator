@@ -7,6 +7,7 @@ from pathlib import Path
 
 APPLICATIONS_DIR = './applications'
 BIN_DIR = './bin'
+CV_DIR = './cv'
 
 
 def run():
@@ -49,6 +50,14 @@ def _format_application_text(cur_dir, template):
     return template.replace('{{APPLICATION_TEXT}}', application_text)
 
 
+def _format_cv(template):
+    cv_pdf = _get_and_check_specific_file(Path(CV_DIR), 'cv.pdf')
+    if cv_pdf is not None:
+        return template.replace('{{CV}}', '\\includepdf[]{{{}}}'.format(str(cv_pdf)))
+    else:
+        return template.replace('{{CV}}', '')
+
+
 def _format_personal_data(personal_json, template):
     return template \
         .replace('{{FIRSTNAME}}', personal_json['firstname']) \
@@ -70,7 +79,15 @@ def _format_template(cur_dir, personal_json, template):
     cur_template = _format_address(cur_dir, cur_template)
     cur_template = _format_application_text(cur_dir, cur_template)
     cur_template = _format_signature(cur_template)
+    cur_template = _format_cv(cur_template)
     return cur_template
+
+
+def _get_and_check_specific_file(cur_dir, file_name):
+    if (cur_dir / file_name).exists():
+        return _get_specific_file(cur_dir, file_name)
+    else:
+        return None
 
 
 def _get_company_dirs():
