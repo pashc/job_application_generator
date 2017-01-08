@@ -89,7 +89,7 @@ def _format_template(cur_dir, personal_json, template):
 
 def _read_from_specific_file(cur_dir, file_name):
     path = Path(cur_dir)
-    specific_file = [x for x in path.iterdir() if x.is_file() and x.name.endswith(file_name)][0]
+    specific_file = [x for x in path.iterdir() if x.name.endswith(file_name)][0]
     with specific_file.open() as file:
         return file.read()
 
