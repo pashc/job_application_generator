@@ -7,6 +7,7 @@ from pathlib import Path
 
 APPLICATIONS_DIR = './applications'
 BIN_DIR = './bin'
+CERTIFICATES_DIR = './certificates'
 CV_DIR = './cv'
 
 
@@ -50,6 +51,12 @@ def _format_application_text(cur_dir, template):
     return template.replace('{{APPLICATION_TEXT}}', application_text)
 
 
+def _format_certificates(template):
+    cert_pdfs = _get_and_check_specific_files(Path(CERTIFICATES_DIR), 'pdf')
+    cert_formats = ['\\includepdf[]{{{}}}\n'.format(str(pdf)) for pdf in cert_pdfs]
+    return template.replace('{{CERTIFICATES}}', ''.join(cert_formats))
+
+
 def _format_cv(template):
     cv_pdf = _get_and_check_specific_file(Path(CV_DIR), 'cv.pdf')
     if cv_pdf is not None:
@@ -80,6 +87,7 @@ def _format_template(cur_dir, personal_json, template):
     cur_template = _format_application_text(cur_dir, cur_template)
     cur_template = _format_signature(cur_template)
     cur_template = _format_cv(cur_template)
+    cur_template = _format_certificates(cur_template)
     return cur_template
 
 
@@ -90,13 +98,17 @@ def _get_and_check_specific_file(cur_dir, file_name):
         return None
 
 
+def _get_and_check_specific_files(cur_dir, file_name):
+    return [x for x in cur_dir.iterdir() if x.name.endswith(file_name)]
+
+
 def _get_company_dirs():
     app_dir = Path(APPLICATIONS_DIR)
     return [x for x in app_dir.iterdir() if x.is_dir()]
 
 
-def _get_specific_file(path, file_name):
-    return [x for x in path.iterdir() if x.name.endswith(file_name)][0]
+def _get_specific_file(cur_dir, file_name):
+    return _get_and_check_specific_files(cur_dir, file_name)[0]
 
 
 def _load_json_from(cur_dir):
