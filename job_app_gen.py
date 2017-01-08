@@ -16,22 +16,20 @@ def run():
     _process_dirs(dirs, personal_json, template)
 
 
-def _cleanup(output_dir):
-    output_path = Path(output_dir)
+def _cleanup(output_path):
     files_to_remove = ['.aux', '.log', '.out']
     for file in output_path.iterdir():
         if str(file)[-4:] in files_to_remove:
             os.remove(str(file))
 
 
-def _create_pdf(app_tex):
+def _create_pdf(app_tex, output_dir):
     pdflatex = shutil.which('pdflatex')
     if not pdflatex:
         print('pdflatex is not installed')
         sys.exit('Abort')
 
-    output_dir = str(app_tex.parents[0].absolute())
-    subprocess.run([pdflatex, '-output-dir=' + output_dir, '-jobname=job_application', str(app_tex.absolute())],
+    subprocess.run([pdflatex, '-output-dir=' + str(output_dir), '-jobname=job_application', str(app_tex.absolute())],
                    stdout=subprocess.DEVNULL)
     _cleanup(output_dir)
 
@@ -77,7 +75,7 @@ def _process_dirs(dirs, personal_json, template):
 
         app_tex = cur_dir / 'app.tex'
         _write_template(app_tex, cur_template)
-        _create_pdf(app_tex)
+        _create_pdf(app_tex, cur_dir)
 
     print('finished')
 
