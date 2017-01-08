@@ -13,13 +13,10 @@
 \setlength{\parindent}{0pt}
 \addtolength{\parskip}{6pt}
 
-\def\firstname{{{FIRSTNAME}}}
-\def\familyname{{{LASTNAME}}}
-\def\fullname{\firstname \familyname}
-\def\FileAuthor{\fullname}
-\def\FileTitle{\fullname's cover letter}
+\def\FileAuthor{{{FIRSTNAME}} {{LASTNAME}}}
+\def\FileTitle{{{FIRSTNAME}} {{LASTNAME}}'s cover letter}
 \def\FileSubject{Cover letter}
-\def\FileKeyWords{\fullname, Cover letter}
+\def\FileKeyWords{{{FIRSTNAME}} {{LASTNAME}}, Cover letter}
 
 \renewcommand{\ttdefault}{pcr}
 
@@ -45,7 +42,7 @@
 \hfill%
 \begin{minipage}[t]{.6\textwidth}
 \raggedleft%
-{\bfseries \fullname}\\[.35ex]
+{\bfseries {{FIRSTNAME}} {{LASTNAME}}}\\[.35ex]
 \small\itshape%
 {{STREET}} \\
 {{ZIP}} {{CITY}}\\[.35ex]
@@ -76,7 +73,7 @@ Dear Sir or Madam:\\[1.5em]
 Yours faithfully,\\[2em] % if the opening is "Dear Sir or Madam,"
 %
 %\includegraphics[scale=0.75]{signature_blue}\\
-{\bfseries \fullname}\\
+{\bfseries {{FIRSTNAME}} {{LASTNAME}}}\\
 %
 \vfill%
 {\slshape Enclosure}
